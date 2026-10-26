@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Richie Transport Service: shared rides to work, on time</title>
+<meta name="description" content="Find a route, book your seat and track your shuttle to work.">
+<meta name="theme-color" content="#12233b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Crect width=%27512%27 height=%27512%27 rx=%27110%27 fill=%27%2312233b%27/%3E%3Ccircle cx=%27180%27 cy=%27256%27 r=%2762%27 fill=%27%23ffc21a%27/%3E%3Ccircle cx=%27336%27 cy=%27256%27 r=%2742%27 fill=%27%23ffc21a%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12233b;--sun:#ffc21a;--sky:#e9f0f5;--line:#c4d2dc;--mute:#4b5d73;--ok:#17794a;--warn:#9a4a07;--bad:#b3261e;--r:10px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font:400 16px/1.55 Figtree,system-ui,sans-serif;color:var(--ink);background:#fff}
+h1,h2,h3{font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.1;margin:0 0 .5em}
+h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:800;letter-spacing:-.02em}h2{font-size:clamp(1.6rem,3.5vw,2.3rem)}h3{font-size:1.15rem}
+a{color:inherit}p{max-width:62ch}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;box-shadow:0 0 0 5px var(--ink)}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:9}
+.w{max-width:1100px;margin:0 auto;padding:0 20px}
+header{background:var(--ink);color:#fff;position:sticky;top:0;z-index:5}
+header .w{display:flex;align-items:center;gap:16px;min-height:60px}
+.logo{font:800 1.3rem 'Bricolage Grotesque';text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo i{width:14px;height:14px;background:var(--sun);border-radius:50%;box-shadow:16px 0 0 -4px var(--sun)}
+nav{display:flex;gap:4px;margin-left:auto;align-items:center}
+nav a{padding:10px 12px;text-decoration:none;border-radius:8px;min-height:44px;display:flex;align-items:center}
+nav a:hover,nav a[aria-current]{background:#ffffff22}
+#mb{display:none;margin-left:auto;background:none;border:1px solid #fff6;color:#fff;border-radius:8px;min-height:44px;padding:0 14px;font:inherit}
+@media(max-width:760px){#mb{display:block}nav{display:none;position:absolute;top:60px;left:0;right:0;background:var(--ink);flex-direction:column;align-items:stretch;padding:8px 20px 16px}nav.open{display:flex}}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:var(--r);border:2px solid var(--ink);background:var(--sun);color:var(--ink);font:600 1rem Figtree;cursor:pointer;text-decoration:none}
+.btn:hover{background:#ffd24d}.btn.alt{background:#fff}.btn.sm{min-height:36px;padding:0 12px}.btn:disabled{opacity:.5;cursor:not-allowed}
+nav .btn{margin-left:6px}
+.hero{background:var(--sky);padding:48px 0 56px;border-bottom:4px solid var(--ink)}
+.hero .w{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center}
+@media(max-width:860px){.hero .w{grid-template-columns:1fr}}
+.card{background:#fff;border:2px solid var(--ink);border-radius:var(--r);padding:18px}
+.sf{display:grid;gap:12px;margin-top:20px}
+label{display:grid;gap:4px;font-weight:600;font-size:.95rem}
+input,select{min-height:44px;border:2px solid var(--line);border-radius:8px;padding:0 12px;font:inherit;background:#fff;color:var(--ink);width:100%}
+input:focus,select:focus{border-color:var(--ink)}
+.err{color:var(--bad);font-size:.9rem;min-height:1.2em}
+section{padding:56px 0}.alt-bg{background:var(--sky)}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.steps li{counter-increment:s;border-top:4px solid var(--ink);padding-top:12px}.steps li:before{content:counter(s);font:800 2rem 'Bricolage Grotesque'}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.85rem;font-weight:600;border:1.5px solid}
+.b-ok{color:var(--ok)}.b-warn{color:var(--warn)}.b-bad{color:var(--bad)}
+.rc{display:grid;gap:8px}.rc .top{display:flex;justify-content:space-between;gap:8px;align-items:start}
+.price{font:800 1.5rem 'Bricolage Grotesque'}.mute{color:var(--mute)}
+.split{display:grid;grid-template-columns:260px 1fr;gap:24px}@media(max-width:800px){.split{grid-template-columns:1fr}}
+.stops{list-style:none;margin:0;padding:0 0 0 22px;border-left:4px solid var(--ink)}
+.stops li{position:relative;padding:6px 0 14px 12px}.stops li:before{content:"";position:absolute;left:-31px;top:10px;width:14px;height:14px;border-radius:50%;background:#fff;border:4px solid var(--ink)}
+.stops li.on:before{background:var(--sun)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{border:2px solid var(--line);border-radius:var(--r);padding:12px;background:#fff;font:600 1rem Figtree;min-height:44px;cursor:pointer;text-align:left}
+.tile[aria-pressed=true]{border-color:var(--ink);background:var(--sun)}
+.prog{display:flex;gap:6px;margin:0 0 16px;padding:0;list-style:none}.prog li{flex:1;height:6px;background:var(--line);border-radius:3px}.prog li.d{background:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.days label{display:inline-flex;grid-template:none;align-items:center;gap:6px;border:2px solid var(--line);border-radius:8px;padding:6px 10px;min-height:44px}
+.days input{width:auto;min-height:0}
+.skel{height:120px;border-radius:var(--r);background:linear-gradient(90deg,#e4ecf1,#f3f7f9,#e4ecf1);background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.map{position:relative;height:90px;margin:26px 8px 50px}
+.map .ln{position:absolute;left:0;right:0;top:44px;height:6px;background:var(--ink);border-radius:3px}
+.map .st{position:absolute;top:36px;width:22px;height:22px;border:5px solid var(--ink);background:#fff;border-radius:50%;transform:translateX(-50%)}
+.map .st span{position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:.78rem;white-space:nowrap;font-weight:600}
+.map .bus{position:absolute;top:30px;width:34px;height:34px;background:var(--sun);border:3px solid var(--ink);border-radius:9px;transform:translateX(-50%);transition:left 1s linear}
+.eta{font:800 2rem 'Bricolage Grotesque'}
+details{border-bottom:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:600;min-height:32px}
+footer{background:var(--ink);color:#d5e0ea;padding:32px 0}footer a{margin-right:16px}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:10px;z-index:9;display:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#app">Skip to content</a>
+<header><div class="w">
+<a class="logo" href="#/"><i></i>Richie Transport</a>
+<button id="mb" aria-expanded="false" aria-controls="nv">Menu</button>
+<nav id="nv" aria-label="Main">
+<a href="#/routes">Find a route</a><a href="#/how">How it works</a><a href="#/employers">For employers</a><a href="#/help">Help</a>
+<span id="auth"></span>
+</nav></div></header>
+<main id="app" tabindex="-1"></main>
+<footer><div class="w"><p><strong>Richie Transport Service</strong>. Shared rides that get workers to their shift.</p>
+<a href="#/help">Help centre</a><a href="#/employers">For employers</a><a href="#/help">Terms</a><a href="#/help">Privacy</a>
+<p class="mute" style="color:#9fb3c8">Demo build: routes, prices and tracking are sample data.</p></div></footer>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const CUR='$';
+const R=[
+{id:'r1',name:'Northgate Express',shift:'Morning',veh:'Minibus',price:3.5,week:15,seats:6,times:['05:30','06:15','07:00'],stops:['Northgate Market','Eastfield Junction','Mill Road','Harbour Industrial Park']},
+{id:'r2',name:'Riverside Loop',shift:'Day',veh:'Coach',price:4,week:17,seats:12,times:['07:30','08:30'],stops:['Riverside Terminal','Old Bridge','City Centre','Tech Park']},
+{id:'r3',name:'Southfield Night Link',shift:'Night',veh:'Minibus',price:5,week:22,seats:0,times:['21:30','22:30'],stops:['Southfield Gate','Airport Road','Cargo Terminal','Warehouse District']},
+{id:'r4',name:'Westbrook Shuttle',shift:'Morning',veh:'Minibus',price:3,week:13,seats:3,times:['05:45','06:30'],stops:['Westbrook Square','Cedar Heights','Mill Road','Harbour Industrial Park']},
+{id:'r5',name:'Lakeside Day Runner',shift:'Day',veh:'Coach',price:3.8,week:16,seats:9,times:['08:00','09:00'],stops:['Lakeside Estate','Central Hospital','City Centre','Tech Park']},
+{id:'r6',name:'Eastfield Late Shift',shift:'Night',veh:'Minibus',price:4.5,week:19,seats:5,times:['18:00','22:00'],stops:['Eastfield Junction','Mill Road','Cargo Terminal','Warehouse District']}];
+const AREAS=[...new Set(R.flatMap(r=>r.stops))].sort();
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const $=(s,e=document)=>e.querySelector(s),app=$('#app');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const m=n=>CUR+(+n).toFixed(2);
+let S={};try{S=JSON.parse(localStorage.getItem('sl')||'{}')}catch(e){}S.bk=S.bk||[];
+const save=()=>{try{localStorage.setItem('sl',JSON.stringify(S))}catch(e){}};
+let tT;const toast=t=>{const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(tT);tT=setTimeout(()=>e.style.display='none',3200)};
+const seatBadge=r=>r.seats===0?'<span class="badge b-bad">Full</span>':r.seats<=4?`<span class="badge b-warn">${r.seats} seats left</span>`:'<span class="badge b-ok">Running</span>';
+const getR=id=>R.find(r=>r.id===id);
+let timer;
+
+function authNav(){$('#auth').innerHTML=S.user?`<a href="#/commute">My commute</a><a href="#" id="lo">Log out</a>`:`<a href="#/signin">Log in</a><a class="btn sm" href="#/signin">Sign up</a>`;
+const lo=$('#lo');if(lo)lo.onclick=e=>{e.preventDefault();S.user=null;save();location.hash='#/';toast('You are logged out.')}}
+
+/* ---------- views ---------- */
+function home(){
+app.innerHTML=`<div class="hero"><div class="w"><div>
+<h1>Your seat to work is already moving.</h1>
+<p>Find a shuttle that passes near home, book a weekly seat, and watch it arrive on a live map.</p>
+<form class="card sf" id="sf" aria-label="Search routes">
+<label>Where do you live?<input name="from" list="ar" autocomplete="off" placeholder="e.g. Northgate Market"></label>
+<label>Where do you work?<input name="to" list="ar" autocomplete="off" placeholder="e.g. Harbour Industrial Park"></label>
+<datalist id="ar">${AREAS.map(a=>`<option value="${a}">`).join('')}</datalist>
+<button class="btn">Find my route</button></form></div>
+<div class="card" aria-label="Sample route diagram"><h3>Northgate Express, 06:15</h3>
+<svg viewBox="0 0 480 170" role="img" aria-label="Shuttle travelling between four stops" style="width:100%">
+<path id="p" d="M30 90 C120 20 180 150 240 90 S380 30 450 90" fill="none" stroke="#12233b" stroke-width="7" stroke-linecap="round"/>
+${[[30,90,'Northgate'],[160,76,'Eastfield'],[290,92,'Mill Rd'],[450,90,'Harbour']].map(s=>`<circle cx="${s[0]}" cy="${s[1]}" r="11" fill="#fff" stroke="#12233b" stroke-width="5"/><text x="${s[0]}" y="${s[1]+34}" text-anchor="middle" font-size="13" font-weight="600" fill="#12233b">${s[2]}</text>`).join('')}
+<rect x="-14" y="-14" width="28" height="28" rx="8" fill="#ffc21a" stroke="#12233b" stroke-width="3"><animateMotion id="am" dur="9s" repeatCount="indefinite" rotate="0"><mpath href="#p"/></animateMotion></rect></svg>
+<p class="mute" style="margin:0">Arrives at the first stop in 6 minutes. 4 seats left.</p></div></div></div>
+<section id="how"><div class="w"><h2>How it works</h2><ol class="steps">
+<li><h3>Find</h3><p>Enter where you live and where you work. We show routes with times, prices and open seats.</p></li>
+<li><h3>Book</h3><p>Pick a pick-up point, your days and a plan. Pay by mobile money, card or your employer’s code.</p></li>
+<li><h3>Ride</h3><p>Track your shuttle live, share your trip, and skip a day when your shift changes.</p></li></ol></div></section>
+<section class="alt-bg"><div class="w"><h2>Popular routes</h2><div class="grid">${R.slice(0,3).map(rc).join('')}</div>
+<p><a class="btn alt" href="#/routes">See all routes</a></p></div></section>
+<section><div class="w"><h2>Built for the early and the late</h2><div class="grid">
+<div><h3>Reliable pick-ups</h3><p>Fixed stops and times, with a delay banner when something changes.</p></div>
+<div><h3>Safer travel</h3><p>Checked vehicles, named drivers, trip sharing and an SOS button.</p></div>
+<div><h3>Weekly passes</h3><p>Pay less per ride and see the full price before you pay.</p></div>
+<div><h3>Light on data</h3><p>Pages load fast on slow networks and the map only loads when you need it.</p></div></div></div></section>
+<section class="alt-bg"><div class="w card"><h2>Moving a whole team?</h2><p>Enrol staff from a list, assign routes and pay one monthly invoice.</p><a class="btn" href="#/employers">Set up for your company</a></div></section>`;
+$('#sf').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);location.hash=`#/routes?from=${encodeURIComponent(f.get('from'))}&to=${encodeURIComponent(f.get('to'))}`};
+if(matchMedia('(prefers-reduced-motion:reduce)').matches)$('#am')?.remove();
+}
+function rc(r){return`<article class="card rc"><div class="top"><h3><a href="#/route/${r.id}">${r.name}</a></h3>${seatBadge(r)}</div>
+<div class="mute">${esc(r.stops[0])} to ${esc(r.stops.at(-1))}</div>
+<div>Departs ${r.times.join(', ')} · ${r.shift} shift · ${r.veh}</div>
+<div class="row"><span class="price">${m(r.price)}</span><span class="mute">per ride · ${m(r.week)} weekly</span></div>
+<a class="btn sm alt" href="#/route/${r.id}" style="justify-self:start">${r.seats?'View and book':'View and join waitlist'}</a></article>`}
+
+function routes(q){
+const p=new URLSearchParams(q);
+app.innerHTML=`<div class="w" style="padding-top:32px;padding-bottom:48px"><h1 style="font-size:2.2rem">Find a route</h1>
+<div class="split"><form class="card sf" id="ff" style="align-self:start;margin-top:0" aria-label="Filters">
+<label>From<input name="from" list="ar" value="${esc(p.get('from')||'')}"></label>
+<label>To<input name="to" list="ar" value="${esc(p.get('to')||'')}"></label>
+<datalist id="ar">${AREAS.map(a=>`<option value="${a}">`).join('')}</datalist>
+<label>Shift<select name="shift"><option value="">Any</option>${['Morning','Day','Night'].map(s=>`<option ${p.get('shift')===s?'selected':''}>${s}</option>`).join('')}</select></label>
+<label>Max price per ride<select name="max"><option value="">Any</option>${[3.5,4,5].map(v=>`<option value="${v}" ${p.get('max')==v?'selected':''}>${m(v)}</option>`).join('')}</select></label>
+<label>Sort by<select name="sort"><option value="time">Earliest departure</option><option value="price" ${p.get('sort')==='price'?'selected':''}>Lowest price</option></select></label></form>
+<div><div id="res" aria-live="polite"></div></div></div></div>`;
+const res=$('#res'),ff=$('#ff');
+const run=(skel)=>{const f=new FormData(ff),from=f.get('from').toLowerCase(),to=f.get('to').toLowerCase();
+const u=new URLSearchParams([...f].filter(x=>x[1]));history.replaceState(null,'','#/routes?'+u);
+let L=R.filter(r=>(!from||r.stops.some(s=>s.toLowerCase().includes(from)))&&(!to||r.stops.some(s=>s.toLowerCase().includes(to)))&&(!f.get('shift')||r.shift===f.get('shift'))&&(!f.get('max')||r.price<=+f.get('max')));
+L.sort((a,b)=>f.get('sort')==='price'?a.price-b.price:a.times[0].localeCompare(b.times[0]));
+const draw=()=>res.innerHTML=L.length?`<p class="mute">${L.length} route${L.length>1?'s':''} found</p><div class="grid">${L.map(rc).join('')}</div>`:
+`<div class="card"><h2>No routes match yet</h2><p>Tell us where you travel and we’ll contact you when a route opens.</p><form id="rq" class="sf"><label>Name<input name="n" required></label><label>Phone<input name="p" type="tel" required></label><label>Preferred time<input name="t" type="time"></label><button class="btn">Request this route</button></form></div>`;
+if(skel){res.innerHTML='<div class="grid"><div class="skel"></div><div class="skel"></div></div>';setTimeout(()=>{draw();bindRq()},450)}else{draw();bindRq()}};
+const bindRq=()=>{const f=$('#rq');if(f)f.onsubmit=e=>{e.preventDefault();toast('Request sent. We’ll text you when a route opens.');f.reset()}};
+ff.addEventListener('input',()=>run(false));ff.onsubmit=e=>e.preventDefault();run(true);
+}
+
+function routePage(id){
+const r=getR(id);if(!r){app.innerHTML='<div class="w" style="padding:60px 0"><h1>Route not found</h1><a class="btn" href="#/routes">Back to routes</a></div>';return}
+if(!S.d||S.d.rid!==id)S.d={rid:id,step:0,pick:r.stops[0],plan:'week',days:['Mon','Tue','Wed','Thu','Fri'],time:r.times[0],method:'',ec:''};
+app.innerHTML=`<div class="w" style="padding:32px 20px 56px"><a href="#/routes">← All routes</a>
+<div class="row" style="margin:12px 0"><h1 style="margin:0;font-size:2.4rem">${r.name}</h1>${seatBadge(r)}</div>
+<div class="split" style="grid-template-columns:1fr 1fr">
+<div><h2>Stops</h2><ol class="stops">${r.stops.map((s,i)=>`<li class="${i?'':'on'}">${esc(s)}</li>`).join('')}</ol>
+<h3>Timetable</h3><p>Weekdays: ${r.times.join(', ')} (${r.shift} shift)</p><h3>Vehicle</h3><p>${r.veh}, seats ${r.seats?r.seats+' open':'currently full'}, seat belts, CCTV, checked daily.</p></div>
+<div class="card" id="bk"></div></div></div>`;
+book(r);
+}
+function price(r,d){const base=d.plan==='single'?r.price:d.plan==='week'?r.week:r.week*3.6;return{base,fee:base*.03,total:base*1.03}}
+function book(r){
+const d=S.d,box=$('#bk'),T=['Pick-up','Schedule','Your details','Pay'];
+if(r.seats===0&&d.step<5){box.innerHTML=`<h2>This route is full</h2><p>Join the waitlist and we’ll message you when a seat opens.</p><button class="btn" id="wl">Join waitlist</button><p>Similar routes: ${R.filter(x=>x.seats&&x.shift===r.shift).map(x=>`<a href="#/route/${x.id}">${x.name}</a>`).join(', ')||'none yet'}</p>`;$('#wl').onclick=()=>toast('You are on the waitlist.');return}
+const pr=price(r,d);
+const head=`<ol class="prog" aria-label="Step ${d.step+1} of 4">${T.map((t,i)=>`<li class="${i<=d.step?'d':''}"></li>`).join('')}</ol><h2>${d.step<4?T[d.step]:'Booked'}</h2>`;
+const sum=`<p class="mute">Total ${m(pr.total)} (includes ${m(pr.fee)} service fee)</p>`;
+const nav=(n,lbl)=>`<div class="row">${d.step?'<button class="btn alt" id="bb">Back</button>':''}<button class="btn" id="nx">${lbl}</button></div><div class="err" id="er" role="alert"></div>`;
+let h='';
+if(d.step===0)h=`<label>Pick-up point<select id="pk">${r.stops.slice(0,-1).map(s=>`<option ${s===d.pick?'selected':''}>${esc(s)}</option>`).join('')}</select></label><p>Drop-off: ${esc(r.stops.at(-1))}</p>`+nav(0,'Continue');
+if(d.step===1)h=`<fieldset style="border:0;padding:0;margin:0 0 12px"><legend><strong>Plan</strong></legend><div class="tiles">${[['single','Single ride'],['week','Weekly pass'],['month','Monthly pass']].map(p=>`<button type="button" class="tile" data-p="${p[0]}" aria-pressed="${d.plan===p[0]}">${p[1]}<br><span class="mute">${m(price(r,{plan:p[0]}).base)}</span></button>`).join('')}</div></fieldset>
+<div class="days row">${DAYS.map(x=>`<label><input type="checkbox" value="${x}" ${d.days.includes(x)?'checked':''}>${x}</label>`).join('')}</div>
+<label style="margin:12px 0">Departure<select id="tm">${r.times.map(t=>`<option ${t===d.time?'selected':''}>${t}</option>`).join('')}</select></label>${sum}`+nav(1,'Continue');
+if(d.step===2)h=`<label>Emergency contact phone<input id="ec" type="tel" value="${esc(d.ec)}" autocomplete="tel"></label><label style="margin-top:10px"><span>Special assistance (optional)</span><input id="sa"></label>`+nav(2,'Continue to payment');
+if(d.step===3)h=`<div class="tiles">${['Mobile money','Bank card','Employer code'].map(x=>`<button type="button" class="tile" data-m="${x}" aria-pressed="${d.method===x}">${x}</button>`).join('')}</div>
+<div id="pf" style="margin:12px 0">${d.method==='Mobile money'?'<label>Mobile money number<input id="mn" type="tel"></label>':d.method==='Bank card'?'<p class="mute">In production, card fields come from your payment provider’s hosted form.</p>':d.method==='Employer code'?'<label>Company code<input id="cc"></label>':''}</div>
+<p><strong>${plan(d.plan)}: ${m(pr.base)}</strong><br>Service fee: ${m(pr.fee)}<br><strong>Total: ${m(pr.total)}</strong></p>`+nav(3,'Pay '+m(pr.total));
+if(d.step===4){const b=S.bk[0];h=`<p><span class="badge b-ok">Payment received</span></p><p>Booking <strong>${b.ref}</strong>: ${esc(r.name)}, ${b.days.join(', ')} at ${b.time}. Pick-up at ${esc(b.pick)}, starting tomorrow.</p><div class="row"><a class="btn" href="#/commute">Go to my commute</a><button class="btn alt" id="cal">Add to calendar</button></div>`}
+box.innerHTML=head+h;
+const go=s=>{d.step=s;save();book(r)},er=t=>$('#er').textContent=t;
+box.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{d.plan=b.dataset.p;save();book(r)});
+box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{d.method=b.dataset.m;save();book(r)});
+if($('#bb'))$('#bb').onclick=()=>go(d.step-1);
+if($('#cal'))$('#cal').onclick=()=>toast('Calendar file downloaded (demo).');
+if($('#nx'))$('#nx').onclick=()=>{
+if(d.step===0){d.pick=$('#pk').value;go(1)}
+else if(d.step===1){d.days=[...box.querySelectorAll('.days input:checked')].map(x=>x.value);d.time=$('#tm').value;if(!d.days.length)return er('Choose at least one day.');if(!S.user){save();toast('Log in to continue. Your choices are saved.');location.hash='#/signin?next='+encodeURIComponent('#/route/'+r.id);return}go(2)}
+else if(d.step===2){d.ec=$('#ec').value.trim();if(!/^[+\d][\d\s-]{6,}$/.test(d.ec))return er('Enter a phone number we can call, like 0241234567.');go(3)}
+else if(d.step===3){if(!d.method)return er('Choose how you want to pay.');
+if(d.method==='Mobile money'&&!$('#mn').value.trim())return er('Enter your mobile money number.');
+if(d.method==='Employer code'&&!$('#cc').value.trim())return er('Enter your company code.');
+const bt=$('#nx');bt.disabled=true;bt.textContent=d.method==='Mobile money'?'Approve the prompt on your phone…':'Processing…';
+setTimeout(()=>{S.bk.unshift({ref:'RT'+Math.floor(1e4+Math.random()*9e4),rid:r.id,pick:d.pick,plan:d.plan,days:d.days,time:d.time,skips:[]});S.d=null;save();d.step=4;S.d={...d};book(r);S.d=null;save()},1800)}}
+}
+const plan=p=>({single:'Single ride',week:'Weekly pass',month:'Monthly pass'}[p]);
+
+function signin(q){
+const next=new URLSearchParams(q).get('next')||'#/commute';let phase=0,ph='';
+const draw=()=>{app.innerHTML=`<div class="w" style="max-width:460px;padding:48px 20px"><h1 style="font-size:2.2rem">Log in or sign up</h1><form class="card sf" id="f" style="margin-top:0">
+${phase===0?`<label>Full name<input id="nm" autocomplete="name"></label><label>Phone number<input id="ph" type="tel" autocomplete="tel" placeholder="0241234567"></label><label style="grid-template:none;display:flex;gap:8px;align-items:center"><input id="ok" type="checkbox" style="width:auto;min-height:0"> I accept the terms and privacy policy</label><button class="btn">Send code</button>`:`<p>Enter the 4-digit code sent to ${esc(ph)}. Demo code: <strong>1234</strong></p><label>Code<input id="cd" inputmode="numeric" maxlength="4" autocomplete="one-time-code"></label><button class="btn">Verify and continue</button><button type="button" class="btn alt" id="rs" disabled>Resend in <span id="cn">30</span>s</button>`}
+<div class="err" id="er" role="alert"></div></form></div>`;
+const er=t=>$('#er').textContent=t;
+if(phase===1){let n=30;const iv=setInterval(()=>{n--;const c=$('#cn');if(!c||n<0){clearInterval(iv);const b=$('#rs');if(b){b.disabled=false;b.textContent='Resend code';b.onclick=()=>toast('New code sent.')}return}c.textContent=n},1000)}
+$('#f').onsubmit=e=>{e.preventDefault();
+if(phase===0){const nm=$('#nm').value.trim();ph=$('#ph').value.trim();if(nm.length<2)return er('Enter your full name.');if(!/^[+\d][\d\s-]{8,}$/.test(ph))return er('Enter a valid phone number, like 0241234567.');if(!$('#ok').checked)return er('Accept the terms to continue.');S.user={name:nm,phone:ph};phase=1;draw()}
+else{if($('#cd').value!=='1234')return er('That code is not right. Check the message and try again.');save();toast('Welcome, '+S.user.name.split(' ')[0]+'.');authNav();location.hash=next}};
+const i=$('#nm')||$('#cd');if(i)i.focus()};draw()}
+
+function commute(){
+if(!S.user){location.hash='#/signin';return}
+const up=[];const b=S.bk[0];
+if(b){for(let i=0;i<14&&up.length<4;i++){const dt=new Date(Date.now()+86400000*(i+1)),dn=DAYS[(dt.getDay()+6)%7],key=dt.toDateString();if(b.days.includes(dn))up.push({key,dn,dt})}}
+app.innerHTML=`<div class="w" style="padding:32px 20px 56px"><h1 style="font-size:2.2rem">Hi ${esc(S.user.name.split(' ')[0])}</h1>
+${b?`<div class="card" style="margin-bottom:20px"><h2>Today’s ride</h2><p>${esc(getR(b.rid).name)}: pick-up at ${esc(b.pick)}, ${b.time}</p><a class="btn" href="#/track">Track my ride</a></div>
+<h2>Upcoming rides</h2><div class="grid">${up.map(u=>`<div class="card"><strong>${u.dn} ${u.dt.getDate()}/${u.dt.getMonth()+1}</strong><p>${b.time} at ${esc(b.pick)}</p>${b.skips.includes(u.key)?'<span class="badge b-warn">Skipped</span>':`<button class="btn sm alt" data-s="${u.key}">Skip this day</button>`}</div>`).join('')}</div>
+<h2 style="margin-top:28px">Subscription</h2><div class="card"><p>${plan(b.plan)} · ref ${b.ref}</p><p class="mute">Free cancellation up to 2 hours before pick-up. Unused weekly rides become credit.</p><button class="btn alt" id="cx">Cancel subscription</button></div>`
+:`<div class="card"><h2>No rides yet</h2><p>Find a route and book your first seat in a few minutes.</p><a class="btn" href="#/routes">Find a route</a></div>`}
+<h2 style="margin-top:28px">Settings</h2><div class="card"><p>${esc(S.user.name)} · ${esc(S.user.phone)}</p><label style="grid-template:none;display:flex;gap:8px;align-items:center"><input type="checkbox" checked style="width:auto;min-height:0"> Text me about delays</label></div></div>`;
+app.querySelectorAll('[data-s]').forEach(x=>x.onclick=()=>{b.skips.push(x.dataset.s);save();toast('Skipped. We’ll leave a seat for the next ride.');commute()});
+const cx=$('#cx');if(cx)cx.onclick=()=>{if(confirm('Cancel this subscription? Refund or credit follows the policy shown.')){S.bk.shift();save();toast('Subscription cancelled.');commute()}}}
+
+function track(){
+const b=S.bk[0];if(!S.user||!b){location.hash='#/commute';return}
+const r=getR(b.rid);let p=0.05;
+app.innerHTML=`<div class="w" style="padding:32px 20px 56px"><a href="#/commute">← My commute</a><h1 style="font-size:2.2rem">Live tracking</h1>
+<div class="card"><div class="eta" id="eta"></div><p id="stt" aria-live="polite"></p>
+<div class="map" role="img" aria-label="Shuttle position along the route"><div class="ln"></div>${r.stops.map((s,i)=>`<div class="st" style="left:${i/(r.stops.length-1)*100}%"><span>${esc(s)}</span></div>`).join('')}<div class="bus" id="bus"></div></div>
+<p class="mute" id="lu"></p></div>
+<div class="card" style="margin-top:16px"><p><strong>Vehicle:</strong> ${r.veh}, plate RT 4821 · <strong>Driver:</strong> Daniel</p>
+<div class="row"><button class="btn alt" id="sh">Share trip link</button><button class="btn alt" id="rp">Report an issue</button><button class="btn" id="sos" style="background:#fff;border-color:var(--bad);color:var(--bad)">SOS</button></div></div></div>`;
+const tick=()=>{p=Math.min(1,p+.04);$('#bus').style.left=p*100+'%';const mins=Math.max(0,Math.round((1-p)*12));
+$('#eta').textContent=p>=1?'Arrived':`${mins} min away`;$('#stt').textContent=p<.5?'On the way':p<1?'Arriving soon':'Your vehicle is here. Have a good shift.';
+$('#lu').textContent='Last updated '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'})+' (demo updates every 2 seconds)'};
+tick();timer=setInterval(()=>{if(!$('#bus')){clearInterval(timer);return}tick()},2000);
+$('#sh').onclick=()=>{const u=location.href;navigator.share?navigator.share({title:'My Richie Transport trip',url:u}).catch(()=>{}):(navigator.clipboard&&navigator.clipboard.writeText(u),toast('Trip link copied.'))};
+$('#rp').onclick=()=>toast('Issue reported. Support will message you.');
+$('#sos').onclick=()=>{if(confirm('Send an SOS alert to our safety team?'))toast('SOS sent. Stay on the line if we call.')}}
+
+function employers(){app.innerHTML=`<div class="w" style="padding:40px 20px 56px"><h1 style="font-size:2.4rem">Richie Transport for employers</h1><p>Get staff to work on time without running your own fleet.</p>
+<div class="grid"><div class="card"><h3>1. Add your team</h3><p>Upload a CSV or paste a list. We flag errors row by row before anything is sent.</p></div><div class="card"><h3>2. Assign routes</h3><p>Give each person a route and shift in bulk.</p></div><div class="card"><h3>3. Pay one invoice</h3><p>See rides, on-time rate and invoices in one dashboard.</p></div></div>
+<form class="card sf" id="ef" style="max-width:520px"><h2>Request a demo</h2><label>Company<input required></label><label>Work email<input type="email" required></label><label>Number of staff<input type="number" min="1" required></label><button class="btn">Request demo</button></form></div>`;
+$('#ef').onsubmit=e=>{e.preventDefault();toast('Thanks. We’ll email you within one working day.');e.target.reset()}}
+
+function help(){const F=[['How do I book a seat?','Find a route, choose a pick-up point and plan, then pay by mobile money, card or company code.'],['Can I skip a day?','Yes. Open My commute and choose Skip this day before the cancellation cut-off.'],['What if my shuttle is late?','You will see a delay banner with a new arrival time on the tracking page.'],['How do refunds work?','Free cancellation up to 2 hours before pick-up. Unused weekly rides become credit.'],['Is it safe?','Vehicles are checked daily, drivers are vetted, and you can share your trip or send an SOS from the tracking page.'],['Can my employer pay?','Yes. Enter your company code at checkout or ask your HR team about enrolment.']];
+app.innerHTML=`<div class="w" style="padding:40px 20px 56px;max-width:760px"><h1 style="font-size:2.4rem">Help centre</h1><label>Search questions<input id="hs" type="search" placeholder="e.g. refund"></label><div id="fq"></div>
+<h2 style="margin-top:32px">Contact us</h2><p>Phone, WhatsApp or email. Support is open every day from 5:00 to 23:00.</p></div>`;
+const d=()=>{const q=$('#hs').value.toLowerCase();$('#fq').innerHTML=F.filter(f=>(f[0]+f[1]).toLowerCase().includes(q)).map(f=>`<details><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join('')||'<p>No answers match. Try another word or contact us.</p>'};
+$('#hs').oninput=d;d()}
+
+function nf(){app.innerHTML='<div class="w" style="padding:60px 20px"><h1>Page not found</h1><p>That page does not exist.</p><a class="btn" href="#/">Go home</a></div>'}
+
+/* ---------- router ---------- */
+function route(){
+clearInterval(timer);
+const [path,q]=(location.hash||'#/').slice(1).split('?');
+if(path==='/'||path===''||path==='/how'){home();if(path==='/how')setTimeout(()=>$('#how').scrollIntoView(),0)}
+else if(path==='/routes')routes(q);
+else if(path.startsWith('/route/'))routePage(path.split('/')[2]);
+else if(path==='/signin')signin(q);
+else if(path==='/commute')commute();
+else if(path==='/track')track();
+else if(path==='/employers')employers();
+else if(path==='/help')help();
+else nf();
+document.querySelectorAll('nav a').forEach(a=>a.removeAttribute('aria-current'));
+const cur=document.querySelector(`nav a[href="#${path}"]`);if(cur)cur.setAttribute('aria-current','page');
+$('#nv').classList.remove('open');$('#mb').setAttribute('aria-expanded','false');
+if(path!=='/how')window.scrollTo(0,0);
+app.focus({preventScroll:true});authNav();
+}
+$('#mb').onclick=()=>{const o=$('#nv').classList.toggle('open');$('#mb').setAttribute('aria-expanded',o)};
+addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>
